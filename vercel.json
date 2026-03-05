@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    { "source": "/.well-known/oauth-authorization-server", "destination": "/api/oauth/metadata" },
+    { "source": "/register", "destination": "/api/oauth/register" },
+    { "source": "/authorize", "destination": "/api/oauth/authorize" },
+    { "source": "/token", "destination": "/api/oauth/token" },
     { "source": "/mcp", "destination": "/api/mcp" }
   ]
 }
