@@ -57,21 +57,32 @@ export interface SegmentEffort {
 }
 
 // --- Token Management ---
+// Set STRAVA_ACCESS_TOKEN for quick testing (expires in 6h).
+// For production, use STRAVA_CLIENT_ID + CLIENT_SECRET + REFRESH_TOKEN
+// which auto-refreshes indefinitely.
 
 let cachedTokens: StravaTokens | null = null;
 
 async function getValidAccessToken(): Promise<string> {
+  const staticToken = process.env.STRAVA_ACCESS_TOKEN;
+  if (staticToken) return staticToken;
+
   const now = Math.floor(Date.now() / 1000);
 
-  // Use cached if still valid (5 min buffer)
   if (cachedTokens && cachedTokens.expires_at > now + 300) {
     return cachedTokens.access_token;
   }
 
-  // Refresh
-  const clientId = process.env.STRAVA_CLIENT_ID!;
-  const clientSecret = process.env.STRAVA_CLIENT_SECRET!;
-  const refreshToken = cachedTokens?.refresh_token ?? process.env.STRAVA_REFRESH_TOKEN!;
+  const clientId = process.env.STRAVA_CLIENT_ID;
+  const clientSecret = process.env.STRAVA_CLIENT_SECRET;
+  const refreshToken = cachedTokens?.refresh_token ?? process.env.STRAVA_REFRESH_TOKEN;
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error(
+      "Missing Strava credentials. Set STRAVA_ACCESS_TOKEN, or all three of " +
+      "STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN.",
+    );
+  }
 
   const res = await fetch("https://www.strava.com/oauth/token", {
     method: "POST",
