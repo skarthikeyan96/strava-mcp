@@ -1,8 +1,3 @@
-// api/mcp.ts — Strava MCP Server (Vercel Edge Function)
-// Implements MCP over HTTP (SSE not needed for stateless tool calls)
-
-export const runtime = "edge";
-
 import {
   getActivities,
   getActivityDetail,
@@ -18,6 +13,8 @@ import {
   getWeeklySummaries,
   getRacePrepReport,
 } from "../lib/analysis.js";
+
+export const config = { runtime: "edge" };
 
 // --- MCP Tool Definitions ---
 
@@ -249,7 +246,6 @@ function mcpError(id: string | number, code: number, message: string) {
 }
 
 export default async function handler(req: Request): Promise<Response> {
-  // CORS for Claude.ai
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -258,6 +254,13 @@ export default async function handler(req: Request): Promise<Response> {
 
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
+  if (req.method === "GET") {
+    return Response.json(
+      { name: "strava-mcp", version: "1.0.0", status: "ok" },
+      { headers: corsHeaders },
+    );
   }
 
   try {
