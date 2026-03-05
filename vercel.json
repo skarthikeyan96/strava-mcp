@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/mcp.ts": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/mcp", "destination": "/api/mcp" }
+  ]
+}
